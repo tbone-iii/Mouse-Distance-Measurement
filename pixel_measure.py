@@ -14,11 +14,11 @@ from pynput.keyboard import Key, Listener
 import logging
 
 # Set up the logger for info printouts
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
 
 # Disable logger for live use
-logger.propagate = False
+# logger.propagate = False
 
 # Establish the key to be held during mouse pointer location measurement.
 HOTKEY = Key.shift
@@ -53,6 +53,9 @@ class Measurements():
             Measurements.distances.append(distance)
             print(f"Distance: {distance: <3.2f} px")
             logging.info(f" DISTANCE: {distance: <3.2f} px")
+
+            # Compute the ratio between the previous distances
+            Measurements.compute_ratio()
         # Reset the "pos" list of points to empty
         Measurements.pos = []
 
@@ -110,9 +113,6 @@ def on_release(key):
 
         # Compute the distance of the recorded points
         Measurements.compute_distance()
-
-        # Compute the ratio between the previous distances
-        Measurements.compute_ratio()
 
 
 def main():
