@@ -17,8 +17,14 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Disable logger for live use
+logger.propagate = False
+
 # Establish the key to be held during mouse pointer location measurement.
 HOTKEY = Key.shift
+BREAKOUT_KEY = Key.esc
+
+print(f"Press the '{str(BREAKOUT_KEY)[4:]}' key to break out.")
 
 # Establish the mouse button to use for point measurement
 MOUSE_KEY = pynput.mouse.Button.left
@@ -89,6 +95,10 @@ def on_press(key):
     if (key == HOTKEY and not Measurements.is_active):
         logging.info(" Shift is being pressed.")
         Measurements.is_active = True
+
+    # Terminate listener if the specified escape key is pressed
+    if (key == BREAKOUT_KEY):
+        return False
 
 
 def on_release(key):
