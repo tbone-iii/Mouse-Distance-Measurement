@@ -2,6 +2,7 @@ import pytest  # noqa: F401; pylint: disable=unused-variable
 import pixel_measure
 
 
+@pytest.fixture
 def setup(request):
     # Put this in every function that requires a setup and teardown.
     Measurements = pixel_measure.Measurements
