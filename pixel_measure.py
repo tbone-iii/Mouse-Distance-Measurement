@@ -24,8 +24,6 @@ logger.propagate = False
 HOTKEY = Key.shift
 BREAKOUT_KEY = Key.esc
 
-print(f"Press the '{str(BREAKOUT_KEY)[4:]}' key to break out.")
-
 # Establish the mouse button to use for point measurement
 MOUSE_KEY = pynput.mouse.Button.left
 
@@ -118,6 +116,9 @@ def on_release(key):
 
 
 def main():
+    # Breakout key message
+    print(f"Press the '{str(BREAKOUT_KEY)[4:]}' key to break out.")
+
     # Open up the mouse and keyboard event listeners
     with pynput.mouse.Listener(on_click=on_click) as listener:
         with Listener(on_press=on_press, on_release=on_release) as listener:
