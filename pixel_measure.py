@@ -10,41 +10,67 @@
 
 
 from pynput.mouse import Listener as m_Listener
-# from pynput.keyboard import Listener as kb_Listener
+from pynput.keyboard import Listener as kb_Listener
+from pynput.keyboard import Key
 import logging
 
+# Set up the logger for info printouts
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Global position list of tuples
-pos = []
-# Global state for whether the mouse has been clicked once before
-clicked = False
+# Establish the key to be held during mouse pointer location measurement.
+hotkey = Key.shift
+
+
+class Measurements():
+    # Global position list of tuples
+    pos = []
+
+    # Global state for whether points are being recorded
+    is_active = True
 
 
 def on_click(x, y, button, pressed):
     """ When the mouse is clicked, record the cursor position. """
-    global pos, clicked
+    global Measurements
 
+    # Break out if a full click (down and up) does not occur
     if not pressed:
-        # Break out if a full click (down and up) does not occur
         return True
+
+    # Break out if the button pressed is not the left mouse button
 
     logging.info(f"On-click point: ({x}, {y})")
 
-    pos.append((x, y))
+    # Add the point to the list of positions
+    Measurements.pos.append((x, y))
 
-    # Computes the total distance between all points in the list
-    if clicked:
-        distance = compute_distance(pos)
-        print(distance)
-        pos = []
 
-    clicked = not clicked
+def on_press(key):
+    """ When the shift key is pressed and held, turn on the active recording
+        of the mouse position on each click.
+    """
+    global Measurements
+    if key == hotkey and not Measurements.is_active:
+        logging.info("Shift is being pressed.")
+        Measurements.is_active = True
+
+
+def on_release(key):
+    """ When the shift key is released, turn off the active recording of the
+        mouse position on each click.
+    """
+    global Measurements
+    if key == hotkey:
+        logging.info("Shift was released.")
+        Measurements.is_active = False
 
 
 def main():
-    # Open up the mouse event listener
+    # Open up the mouse and keyboard event listeners
     with m_Listener(on_click=on_click) as listener:
-        listener.join()
+        with kb_Listener(on_press=on_press, on_release=on_release) as listener:
+            listener.join()
 
 
 def compute_distance(pos: list) -> float or bool:
