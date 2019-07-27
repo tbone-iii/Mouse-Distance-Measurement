@@ -1,8 +1,8 @@
 # TODO:
-# ! Record mouse positions after each click.
-# ! Calculate the distance after two clicks.
+# Record mouse positions after each click.
+# Calculate the distance after two clicks.
 # ! Determine the ratio between the distances.
-# ! Features:
+# Features:
 # ? Freeze the screen (like Snipping Tool does)
 # ? Add a toggle display for showing the click positions
 # ?  (may require freezing the screen as an image)
@@ -25,11 +25,23 @@ MOUSE_KEY = pynput.mouse.Button.left
 
 
 class Measurements():
-    # Global position list of tuples
+    # Position list of tuples
     pos = []
 
-    # Global state for whether points are being recorded
+    # State for whether points are being recorded
     is_active = False
+
+    @staticmethod
+    def append(point: (int, int)) -> None:
+        """ Appends a point to the list of positions if appropriate. """
+        if Measurements.is_active:
+            Measurements.pos.append(point)
+            logging.info(f"\tAdded point: ({point[0]}, {point[1]})")
+
+    @staticmethod
+    def compute_distance() -> None:
+        """ Computes the distance across the list of points in "pos". """
+        compute_distance_list(Measurements.pos)
 
 
 def on_click(x, y, button, pressed):
@@ -43,10 +55,10 @@ def on_click(x, y, button, pressed):
     elif button is not MOUSE_KEY:
         return True
 
-    logging.info(f"On-click point: ({x}, {y})")
+    logging.info(f" On-click point: ({x}, {y})")
 
     # Add the point to the list of positions
-    Measurements.pos.append((x, y))
+    Measurements.append((x, y))
 
 
 def on_press(key):
@@ -55,7 +67,7 @@ def on_press(key):
     """
     global Measurements
     if (key == HOTKEY and not Measurements.is_active):
-        logging.info("Shift is being pressed.")
+        logging.info(" Shift is being pressed.")
         Measurements.is_active = True
 
 
@@ -65,7 +77,7 @@ def on_release(key):
     """
     global Measurements
     if key == HOTKEY:
-        logging.info("Shift was released.")
+        logging.info(" Shift was released.")
         Measurements.is_active = False
 
 
@@ -76,7 +88,7 @@ def main():
             listener.join()
 
 
-def compute_distance(pos: list) -> float or bool:
+def compute_distance_list(pos: list) -> float or bool:
     """ Computes the distance between each point in the list sequentially.
         Returns the sum of the points. If the computation was not successful,
         it returns a False value.
@@ -92,7 +104,7 @@ def compute_distance(pos: list) -> float or bool:
                 break
             x1, y1 = point
             x2, y2 = pos[ind + 1]
-            logging.info(f"Distance points: ({x1}, {y1}), ({x2},{y2})")
+            logging.info(f" Distance points: ({x1}, {y1}), ({x2},{y2})")
             distance += ((y2 - y1)**2 + (x2 - x1)**2)**0.5
 
         return distance
