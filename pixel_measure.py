@@ -31,6 +31,9 @@ class Measurements():
     # State for whether points are being recorded
     is_active = False
 
+    # List of distances calculated
+    distances = []
+
     @staticmethod
     def append(point: (int, int)) -> None:
         """ Appends a point to the list of positions if appropriate. """
@@ -41,7 +44,24 @@ class Measurements():
     @staticmethod
     def compute_distance() -> None:
         """ Computes the distance across the list of points in "pos". """
-        compute_distance_list(Measurements.pos)
+        distance = compute_distance_list(Measurements.pos)
+        if distance:
+            Measurements.distances.append(distance)
+            print(f"Distance: {distance: <3.2f} px")
+            logging.info(f" DISTANCE: {distance: <3.2f} px")
+        # Reset the "pos" list of points to empty
+        Measurements.pos = []
+
+    @staticmethod
+    def compute_ratio() -> float or bool:
+        """ Computes the ratio of the previous two distances. """
+        distances = Measurements.distances
+        if len(distances) < 2:
+            return False
+        else:
+            ratio = distances[-2]/distances[-1]
+            print(f"Ratio: {ratio: .2f}")
+            return ratio
 
 
 def on_click(x, y, button, pressed):
@@ -79,6 +99,12 @@ def on_release(key):
     if key == HOTKEY:
         logging.info(" Shift was released.")
         Measurements.is_active = False
+
+        # Compute the distance of the recorded points
+        Measurements.compute_distance()
+
+        # Compute the ratio between the previous distances
+        Measurements.compute_ratio()
 
 
 def main():
