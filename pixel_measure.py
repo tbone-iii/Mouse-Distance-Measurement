@@ -9,9 +9,8 @@
 # ? Allow zoom-in
 
 
-from pynput.mouse import Listener as m_Listener
-from pynput.keyboard import Listener as kb_Listener
-from pynput.keyboard import Key
+import pynput.mouse
+from pynput.keyboard import Key, Listener
 import logging
 
 # Set up the logger for info printouts
@@ -19,7 +18,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Establish the key to be held during mouse pointer location measurement.
-hotkey = Key.shift
+HOTKEY = Key.shift
+
+# Establish the mouse button to use for point measurement
+MOUSE_KEY = pynput.mouse.Button.left
 
 
 class Measurements():
@@ -27,7 +29,7 @@ class Measurements():
     pos = []
 
     # Global state for whether points are being recorded
-    is_active = True
+    is_active = False
 
 
 def on_click(x, y, button, pressed):
@@ -37,8 +39,9 @@ def on_click(x, y, button, pressed):
     # Break out if a full click (down and up) does not occur
     if not pressed:
         return True
-
-    # Break out if the button pressed is not the left mouse button
+    # Break out if the button pressed is not the desired mouse button
+    elif button is not MOUSE_KEY:
+        return True
 
     logging.info(f"On-click point: ({x}, {y})")
 
@@ -51,7 +54,7 @@ def on_press(key):
         of the mouse position on each click.
     """
     global Measurements
-    if key == hotkey and not Measurements.is_active:
+    if (key == HOTKEY and not Measurements.is_active):
         logging.info("Shift is being pressed.")
         Measurements.is_active = True
 
@@ -61,15 +64,15 @@ def on_release(key):
         mouse position on each click.
     """
     global Measurements
-    if key == hotkey:
+    if key == HOTKEY:
         logging.info("Shift was released.")
         Measurements.is_active = False
 
 
 def main():
     # Open up the mouse and keyboard event listeners
-    with m_Listener(on_click=on_click) as listener:
-        with kb_Listener(on_press=on_press, on_release=on_release) as listener:
+    with pynput.mouse.Listener(on_click=on_click) as listener:
+        with Listener(on_press=on_press, on_release=on_release) as listener:
             listener.join()
 
 
